@@ -10,19 +10,28 @@ export default function App() {
     setItems(items=> items.filter(item=> item.id !== id))
   }
 
+  function toggleHandleItem(id) {
+    setItems((items) => 
+    items.map((item) => 
+      item.id === id ? {...item, packed: !item.packed }
+      : item
+    )
+    )
+  }
+
   return (
     <div className="App">
       <Logo />
       <Form onAddItems={handleAddItems}/>
-      <PackingList items={items} onDeleteItem={handleDeleteItem}/>
-      <Stats />
+      <PackingList items={items} onDeleteItem={handleDeleteItem} onToggleItems={toggleHandleItem} />
+      <Stats items={items} />
     </div>
 
   )
 }
 
 function Logo() {
-  return <h1>🌴complementory💼</h1>
+  return <h1>🌴Far away💼</h1>
 }
 
 function Form( { onAddItems }) {
@@ -35,7 +44,7 @@ function Form( { onAddItems }) {
     if(!description) return;
 
     const newItem = { description, quantity, packed: false, id: Date.now() };
-    console.log(newItem);
+    // console.log(newItem);
     onAddItems(newItem);
     setDescription("");
     setQuantity(1);
@@ -62,21 +71,22 @@ function Form( { onAddItems }) {
   );
 }
 
-function PackingList( {items, onDeleteItem} ) {
+function PackingList( {items, onDeleteItem, onToggleItems} ) {
   return (
     <div className="list">
       <ul>
         {items.map((unique) => (
-          <Item item={unique} onDeleteItem={onDeleteItem} key={unique.id}/>
+          <Item item={unique} onDeleteItem={onDeleteItem} onToggleItems={onToggleItems} key={unique.id}/>
         ))}
       </ul>
     </div>
   );
 }
 
-function Item({ item, onDeleteItem }) {
+function Item({ item, onDeleteItem, onToggleItems }) {
   return (
     <li>
+      <input type="checkbox" value={item.packed} onChange={() => onToggleItems(item.id)} />
       <span style={item.packed ? {textDecoration: "line-through"} : {}}>
         {item.quantity} {item.description}
       </span>
@@ -85,10 +95,11 @@ function Item({ item, onDeleteItem }) {
   )
 }
 
-function Stats() {
+function Stats( {items }) {
+  const numItems = items.length;
   return (
     <footer className="stats">
-      <em>👦 You have X items on your list, and you already packed X (X%)</em>
+      <em>👦 You have  {numItems} on your list, and you already packed X (X%)</em>
     </footer>
   )
 }
